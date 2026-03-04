@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+env.bak/
+*.egg-info/
+
+# Conda
+conda-bld/
+*.conda
+
+# Generated outputs (reproducible)
+labs/**/outputs/
+labs/**/figures/
+logs/
+*.log
