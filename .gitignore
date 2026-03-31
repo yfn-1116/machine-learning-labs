@@ -24,7 +24,7 @@ env.bak/
 conda-bld/
 *.conda
 
-# Generated outputs (reproducible)
+# Generated figures (reproducible)
 labs/**/outputs/
 labs/**/figures/
 logs/
