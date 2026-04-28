@@ -22,7 +22,7 @@ class NativeDBSCAN:
         X = np.asarray(X, dtype=float)
         n_samples = X.shape[0]
 
-        labels = np.full(n_samples, -2, dtype=int)   # -2 未访问
+        labels = np.full(n_samples, -2, dtype=int)  # -2 未访问
         core_indices = []
         cluster_id = 0
 
@@ -33,7 +33,7 @@ class NativeDBSCAN:
             neighbors = self._find_eps_neighborhood(X, p_idx)
 
             if len(neighbors) < self.min_samples:
-                labels[p_idx] = -1   # 噪声
+                labels[p_idx] = -1  # 噪声
                 continue
 
             labels[p_idx] = cluster_id

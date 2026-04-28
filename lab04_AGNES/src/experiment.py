@@ -48,7 +48,7 @@ def main():
     df.to_csv(
         os.path.join(OUTPUT_DIR, "00_simulated_user_data.csv"),
         index=False,
-        encoding="utf-8-sig"
+        encoding="utf-8-sig",
     )
 
     # 4. Simple AGNES demonstration
@@ -61,9 +61,7 @@ def main():
     # 5. Compare linkage methods
     linkage_methods = ["ward", "average", "complete", "single"]
     results = compare_linkage_methods(
-        X_scaled,
-        linkage_methods=linkage_methods,
-        n_clusters=4
+        X_scaled, linkage_methods=linkage_methods, n_clusters=4
     )
 
     print("\n=== Cluster label distribution for different linkage methods ===")
@@ -82,9 +80,7 @@ def main():
 
     # 7. Elbow method
     cluster_counts, wcss_values = calculate_wcss(
-        X_scaled,
-        max_clusters=10,
-        linkage_method="ward"
+        X_scaled, max_clusters=10, linkage_method="ward"
     )
     plt.figure(figsize=(10, 6))
     plt.plot(cluster_counts, wcss_values, "bo-", linewidth=2, markersize=8)
@@ -96,9 +92,7 @@ def main():
 
     # 8. Silhouette method
     cluster_counts_sil, silhouette_values = calculate_silhouette(
-        X_scaled,
-        max_clusters=10,
-        linkage_method="ward"
+        X_scaled, max_clusters=10, linkage_method="ward"
     )
 
     plt.figure(figsize=(10, 6))
@@ -113,7 +107,7 @@ def main():
         x=cluster_counts_sil[best_sil_idx],
         color="red",
         linestyle="--",
-        label=f"Best k = {cluster_counts_sil[best_sil_idx]}"
+        label=f"Best k = {cluster_counts_sil[best_sil_idx]}",
     )
     plt.legend()
     save_plot("03_silhouette_k.png")
@@ -123,14 +117,12 @@ def main():
 
     # 9. Internal metrics
     df_internal = evaluate_internal_metrics(
-        X_scaled,
-        linkage_methods,
-        n_clusters=n_clusters_best
+        X_scaled, linkage_methods, n_clusters=n_clusters_best
     )
     df_internal.to_csv(
         os.path.join(OUTPUT_DIR, "04_internal_metrics.csv"),
         index=False,
-        encoding="utf-8-sig"
+        encoding="utf-8-sig",
     )
 
     print("\n=== Internal Metrics ===")
@@ -138,15 +130,12 @@ def main():
 
     # 10. External metrics
     df_external = evaluate_external_metrics(
-        X_scaled,
-        y_true,
-        linkage_methods,
-        n_clusters=n_clusters_best
+        X_scaled, y_true, linkage_methods, n_clusters=n_clusters_best
     )
     df_external.to_csv(
         os.path.join(OUTPUT_DIR, "05_external_metrics.csv"),
         index=False,
-        encoding="utf-8-sig"
+        encoding="utf-8-sig",
     )
 
     print("\n=== External Metrics ===")
@@ -163,13 +152,7 @@ def main():
     plt.figure(figsize=(10, 6))
     for i in range(4):
         mask = df["cluster_label"] == i
-        plt.scatter(
-            X_2d[mask, 0],
-            X_2d[mask, 1],
-            s=50,
-            alpha=0.7,
-            label=f"Cluster {i}"
-        )
+        plt.scatter(X_2d[mask, 0], X_2d[mask, 1], s=50, alpha=0.7, label=f"Cluster {i}")
 
     plt.title("AGNES Clustering Result (Ward Linkage, PCA Projection)")
     plt.xlabel("PCA Component 1")
@@ -192,12 +175,18 @@ def main():
     cluster_means["user_type"] = cluster_means.index.map(cluster_names)
 
     cluster_means = cluster_means[
-        ["user_type", "sample_count", "reg_days", "browse_duration", "order_count", "avg_order_value"]
+        [
+            "user_type",
+            "sample_count",
+            "reg_days",
+            "browse_duration",
+            "order_count",
+            "avg_order_value",
+        ]
     ]
 
     cluster_means.to_csv(
-        os.path.join(OUTPUT_DIR, "07_cluster_profile.csv"),
-        encoding="utf-8-sig"
+        os.path.join(OUTPUT_DIR, "07_cluster_profile.csv"), encoding="utf-8-sig"
     )
 
     print("\n=== Cluster Profile ===")

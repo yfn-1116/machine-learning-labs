@@ -8,7 +8,9 @@ def add_bias(X):
     return np.c_[np.ones((X.shape[0], 1)), X]
 
 
-def gradient_descent_visual(X_train, Y_train, alpha=0.1, max_iter=10000, tol=1e-6, record_interval=50):
+def gradient_descent_visual(
+    X_train, Y_train, alpha=0.1, max_iter=10000, tol=1e-6, record_interval=50
+):
     """
     批量梯度下降（带参数历史记录）
     """

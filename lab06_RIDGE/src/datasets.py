@@ -60,43 +60,52 @@ def generate_sales_dataset(
     rng = np.random.default_rng(random_state)
 
     # 1. 强相关营销类特征
-    ad_cost = rng.normal(10, 3, n_samples)                         # 广告投放费用（万元）
-    exposure = ad_cost * 50 + rng.normal(0, 20, n_samples)        # 与广告投放强相关
+    ad_cost = rng.normal(10, 3, n_samples)  # 广告投放费用（万元）
+    exposure = ad_cost * 50 + rng.normal(0, 20, n_samples)  # 与广告投放强相关
     promotion_cost = ad_cost * 0.3 + rng.normal(0, 0.5, n_samples)  # 与广告投放强相关
 
     # 2. 强相关渠道类特征
-    store_num = rng.integers(10, 100, n_samples)                  # 铺货门店数
+    store_num = rng.integers(10, 100, n_samples)  # 铺货门店数
     channel_coverage = store_num / 100 + rng.normal(0, 0.05, n_samples)
     shelf_ratio = channel_coverage * 0.5 + rng.normal(0, 0.03, n_samples)
 
     # 3. 相关定价类特征
-    price = rng.normal(50, 10, n_samples)                         # 本品定价
+    price = rng.normal(50, 10, n_samples)  # 本品定价
     competitor_price = price * 0.9 + rng.normal(0, 3, n_samples)  # 竞品均价
 
     # 4. 其他独立特征
-    discount = rng.uniform(0.7, 1.0, n_samples)                   # 促销折扣率（1=不打折）
-    gift_num = rng.integers(0, 5, n_samples)                      # 赠品数量
-    brand_score = rng.normal(50, 10, n_samples)                   # 品牌知名度
-    good_rate = rng.uniform(0.8, 0.99, n_samples)                 # 产品好评率
-    holiday = rng.integers(0, 2, n_samples)                       # 是否节假日
-    consumption_level = rng.normal(50, 15, n_samples)             # 区域消费水平
-    community_reach = rng.normal(10, 3, n_samples)                # 社群触达人数（万人）
+    discount = rng.uniform(0.7, 1.0, n_samples)  # 促销折扣率（1=不打折）
+    gift_num = rng.integers(0, 5, n_samples)  # 赠品数量
+    brand_score = rng.normal(50, 10, n_samples)  # 品牌知名度
+    good_rate = rng.uniform(0.8, 0.99, n_samples)  # 产品好评率
+    holiday = rng.integers(0, 2, n_samples)  # 是否节假日
+    consumption_level = rng.normal(50, 15, n_samples)  # 区域消费水平
+    community_reach = rng.normal(10, 3, n_samples)  # 社群触达人数（万人）
 
-    X = np.column_stack([
-        ad_cost, exposure, promotion_cost,
-        store_num, channel_coverage, shelf_ratio,
-        price, competitor_price,
-        discount, gift_num, brand_score, good_rate,
-        holiday, consumption_level, community_reach
-    ])
+    X = np.column_stack(
+        [
+            ad_cost,
+            exposure,
+            promotion_cost,
+            store_num,
+            channel_coverage,
+            shelf_ratio,
+            price,
+            competitor_price,
+            discount,
+            gift_num,
+            brand_score,
+            good_rate,
+            holiday,
+            consumption_level,
+            community_reach,
+        ]
+    )
 
     # 真实系数：符合业务逻辑
-    true_beta = np.array([
-        50, 0.2, 30,
-        2, 100, 80,
-        -3, 2,
-        200, 15, 3, 10, 50, 2, 4
-    ], dtype=float)
+    true_beta = np.array(
+        [50, 0.2, 30, 2, 100, 80, -3, 2, 200, 15, 3, 10, 50, 2, 4], dtype=float
+    )
 
     noise = rng.normal(0, 100, n_samples)
     y = X @ true_beta + noise
@@ -115,7 +124,13 @@ def generate_sales_dataset(
     # 注入少量异常值，便于演示 IQR 裁剪
     if add_outlier_ratio > 0:
         n_outliers = max(1, int(df.shape[0] * add_outlier_ratio))
-        cols_for_outlier = ["广告投放费用", "线上曝光量", "铺货门店数", "本品定价", "区域消费水平"]
+        cols_for_outlier = [
+            "广告投放费用",
+            "线上曝光量",
+            "铺货门店数",
+            "本品定价",
+            "区域消费水平",
+        ]
         for _ in range(n_outliers):
             r = rng.integers(0, df.shape[0])
             col = cols_for_outlier[rng.integers(0, len(cols_for_outlier))]

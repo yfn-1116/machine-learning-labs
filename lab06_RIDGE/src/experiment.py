@@ -30,6 +30,7 @@ import seaborn as sns
 
 try:
     import chineseize_matplotlib  # type: ignore  # noqa: F401
+
     _CHINESEIZE_AVAILABLE = True
 except Exception:
     _CHINESEIZE_AVAILABLE = False
@@ -142,7 +143,9 @@ def fill_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     return df_filled
 
 
-def clip_outliers_iqr(df: pd.DataFrame, exclude_cols: List[str] | None = None) -> pd.DataFrame:
+def clip_outliers_iqr(
+    df: pd.DataFrame, exclude_cols: List[str] | None = None
+) -> pd.DataFrame:
     print("\n[STEP] IQR 异常值裁剪")
     exclude_cols = exclude_cols or []
     df_clipped = df.copy()
@@ -181,26 +184,48 @@ def split_and_scale(df: pd.DataFrame):
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    X_train_scaled_df = pd.DataFrame(X_train_scaled, columns=X.columns, index=X_train.index)
-    X_test_scaled_df = pd.DataFrame(X_test_scaled, columns=X.columns, index=X_test.index)
+    X_train_scaled_df = pd.DataFrame(
+        X_train_scaled, columns=X.columns, index=X_train.index
+    )
+    X_test_scaled_df = pd.DataFrame(
+        X_test_scaled, columns=X.columns, index=X_test.index
+    )
 
     print("[INFO] 训练集形状:", X_train.shape)
     print("[INFO] 测试集形状:", X_test.shape)
-    print("[INFO] 训练集标准化后均值（前5个）:", np.round(X_train_scaled_df.mean().values[:5], 6))
-    print("[INFO] 训练集标准化后标准差（前5个）:", np.round(X_train_scaled_df.std(ddof=0).values[:5], 6))
+    print(
+        "[INFO] 训练集标准化后均值（前5个）:",
+        np.round(X_train_scaled_df.mean().values[:5], 6),
+    )
+    print(
+        "[INFO] 训练集标准化后标准差（前5个）:",
+        np.round(X_train_scaled_df.std(ddof=0).values[:5], 6),
+    )
 
-    return X, y, X_train, X_test, y_train, y_test, X_train_scaled_df, X_test_scaled_df, scaler
+    return (
+        X,
+        y,
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        X_train_scaled_df,
+        X_test_scaled_df,
+        scaler,
+    )
 
 
 def compute_vif(X_scaled_df: pd.DataFrame) -> pd.DataFrame:
     print("\n[STEP] 多重共线性分析：VIF")
-    vif_df = pd.DataFrame({
-        "特征名称": X_scaled_df.columns,
-        "VIF值": [
-            variance_inflation_factor(X_scaled_df.values, i)
-            for i in range(X_scaled_df.shape[1])
-        ]
-    })
+    vif_df = pd.DataFrame(
+        {
+            "特征名称": X_scaled_df.columns,
+            "VIF值": [
+                variance_inflation_factor(X_scaled_df.values, i)
+                for i in range(X_scaled_df.shape[1])
+            ],
+        }
+    )
     vif_df = vif_df.sort_values("VIF值", ascending=False).reset_index(drop=True)
     print(vif_df)
     return vif_df
@@ -242,21 +267,25 @@ def run_ols(X_train_scaled_df, X_test_scaled_df, y_train, y_test):
     }
 
     try:
-        coef_, intercept_ = ols_fit(X_train_scaled_df.values, y_train.values, add_intercept=True)
+        coef_, intercept_ = ols_fit(
+            X_train_scaled_df.values, y_train.values, add_intercept=True
+        )
         y_train_pred = predict(X_train_scaled_df.values, coef_, intercept_)
         y_test_pred = predict(X_test_scaled_df.values, coef_, intercept_)
 
         train_metrics = regression_metrics(y_train.values, y_train_pred)
         test_metrics = regression_metrics(y_test.values, y_test_pred)
 
-        ols_result.update({
-            "success": True,
-            "coef": coef_,
-            "intercept": intercept_,
-            "train_metrics": train_metrics,
-            "test_metrics": test_metrics,
-            "y_test_pred": y_test_pred,
-        })
+        ols_result.update(
+            {
+                "success": True,
+                "coef": coef_,
+                "intercept": intercept_,
+                "train_metrics": train_metrics,
+                "test_metrics": test_metrics,
+                "y_test_pred": y_test_pred,
+            }
+        )
 
         print("[OK] OLS 训练成功")
         print("[INFO] OLS 训练集指标:", train_metrics)
@@ -269,7 +298,9 @@ def run_ols(X_train_scaled_df, X_test_scaled_df, y_train, y_test):
     return ols_result
 
 
-def cross_validate_ridge(X_train_scaled_df, y_train, lambdas: np.ndarray, n_splits: int = 5):
+def cross_validate_ridge(
+    X_train_scaled_df, y_train, lambdas: np.ndarray, n_splits: int = 5
+):
     print("\n[STEP] 5 折交叉验证选择最优 lambda")
 
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
@@ -289,11 +320,13 @@ def cross_validate_ridge(X_train_scaled_df, y_train, lambdas: np.ndarray, n_spli
             mse_val = np.mean((y_val - y_val_pred) ** 2)
             fold_mse.append(mse_val)
 
-        cv_records.append({
-            "lambda": lam,
-            "cv_mse_mean": float(np.mean(fold_mse)),
-            "cv_mse_std": float(np.std(fold_mse)),
-        })
+        cv_records.append(
+            {
+                "lambda": lam,
+                "cv_mse_mean": float(np.mean(fold_mse)),
+                "cv_mse_std": float(np.std(fold_mse)),
+            }
+        )
 
     cv_df = pd.DataFrame(cv_records)
     best_row = cv_df.loc[cv_df["cv_mse_mean"].idxmin()]
@@ -305,9 +338,13 @@ def cross_validate_ridge(X_train_scaled_df, y_train, lambdas: np.ndarray, n_spli
     return best_lambda, cv_df
 
 
-def plot_ridge_trace(X_train_scaled_df, y_train, feature_names: List[str], lambdas_trace: np.ndarray):
+def plot_ridge_trace(
+    X_train_scaled_df, y_train, feature_names: List[str], lambdas_trace: np.ndarray
+):
     print("\n[STEP] 绘制岭迹图")
-    coef_path = ridge_trace(X_train_scaled_df.values, y_train.values, lambdas_trace, add_intercept=True)
+    coef_path = ridge_trace(
+        X_train_scaled_df.values, y_train.values, lambdas_trace, add_intercept=True
+    )
 
     plt.figure(figsize=(16, 10))
     for i, name in enumerate(feature_names):
@@ -402,11 +439,15 @@ def plot_residual_distribution(y_test, y_pred, model_name: str, save_name: str):
     plt.close()
 
 
-def plot_coef_bar(feature_names: List[str], coefs: np.ndarray, title: str, save_name: str):
-    coef_df = pd.DataFrame({
-        "特征名称": feature_names,
-        "回归系数": coefs,
-    }).sort_values("回归系数", ascending=False)
+def plot_coef_bar(
+    feature_names: List[str], coefs: np.ndarray, title: str, save_name: str
+):
+    coef_df = pd.DataFrame(
+        {
+            "特征名称": feature_names,
+            "回归系数": coefs,
+        }
+    ).sort_values("回归系数", ascending=False)
 
     plt.figure(figsize=(12, 7))
     sns.barplot(data=coef_df, x="回归系数", y="特征名称", orient="h")
@@ -431,35 +472,41 @@ def save_tables(
     rows = []
 
     if ols_result["success"]:
-        rows.append({
-            "模型": "OLS",
-            "训练集MSE": ols_result["train_metrics"]["MSE"],
-            "训练集MAE": ols_result["train_metrics"]["MAE"],
-            "训练集R2": ols_result["train_metrics"]["R2"],
-            "测试集MSE": ols_result["test_metrics"]["MSE"],
-            "测试集MAE": ols_result["test_metrics"]["MAE"],
-            "测试集R2": ols_result["test_metrics"]["R2"],
-        })
+        rows.append(
+            {
+                "模型": "OLS",
+                "训练集MSE": ols_result["train_metrics"]["MSE"],
+                "训练集MAE": ols_result["train_metrics"]["MAE"],
+                "训练集R2": ols_result["train_metrics"]["R2"],
+                "测试集MSE": ols_result["test_metrics"]["MSE"],
+                "测试集MAE": ols_result["test_metrics"]["MAE"],
+                "测试集R2": ols_result["test_metrics"]["R2"],
+            }
+        )
     else:
-        rows.append({
-            "模型": "OLS",
-            "训练集MSE": np.nan,
-            "训练集MAE": np.nan,
-            "训练集R2": np.nan,
-            "测试集MSE": np.nan,
-            "测试集MAE": np.nan,
-            "测试集R2": np.nan,
-        })
+        rows.append(
+            {
+                "模型": "OLS",
+                "训练集MSE": np.nan,
+                "训练集MAE": np.nan,
+                "训练集R2": np.nan,
+                "测试集MSE": np.nan,
+                "测试集MAE": np.nan,
+                "测试集R2": np.nan,
+            }
+        )
 
-    rows.append({
-        "模型": f"Ridge(lambda={best_lambda:.6f})",
-        "训练集MSE": ridge_result["train_metrics"]["MSE"],
-        "训练集MAE": ridge_result["train_metrics"]["MAE"],
-        "训练集R2": ridge_result["train_metrics"]["R2"],
-        "测试集MSE": ridge_result["test_metrics"]["MSE"],
-        "测试集MAE": ridge_result["test_metrics"]["MAE"],
-        "测试集R2": ridge_result["test_metrics"]["R2"],
-    })
+    rows.append(
+        {
+            "模型": f"Ridge(lambda={best_lambda:.6f})",
+            "训练集MSE": ridge_result["train_metrics"]["MSE"],
+            "训练集MAE": ridge_result["train_metrics"]["MAE"],
+            "训练集R2": ridge_result["train_metrics"]["R2"],
+            "测试集MSE": ridge_result["test_metrics"]["MSE"],
+            "测试集MAE": ridge_result["test_metrics"]["MAE"],
+            "测试集R2": ridge_result["test_metrics"]["R2"],
+        }
+    )
 
     performance_df = pd.DataFrame(rows)
     print("\n性能对比表：")
@@ -467,12 +514,14 @@ def save_tables(
     performance_df.to_csv(FIG_DIR / "性能对比表.csv", index=False, encoding="utf-8-sig")
     print(f"[OK] 已保存: {FIG_DIR / '性能对比表.csv'}")
 
-    coef_compare_df = pd.DataFrame({
-        "特征名称": feature_names,
-        "真实系数": true_beta,
-        "Ridge系数": ridge_result["coef"],
-        "Ridge系数绝对误差": np.abs(ridge_result["coef"] - true_beta),
-    })
+    coef_compare_df = pd.DataFrame(
+        {
+            "特征名称": feature_names,
+            "真实系数": true_beta,
+            "Ridge系数": ridge_result["coef"],
+            "Ridge系数绝对误差": np.abs(ridge_result["coef"] - true_beta),
+        }
+    )
 
     if ols_result["success"]:
         coef_compare_df["OLS系数"] = ols_result["coef"]
@@ -482,23 +531,36 @@ def save_tables(
         coef_compare_df["OLS系数绝对误差"] = np.nan
 
     coef_compare_df = coef_compare_df[
-        ["特征名称", "真实系数", "OLS系数", "Ridge系数", "OLS系数绝对误差", "Ridge系数绝对误差"]
+        [
+            "特征名称",
+            "真实系数",
+            "OLS系数",
+            "Ridge系数",
+            "OLS系数绝对误差",
+            "Ridge系数绝对误差",
+        ]
     ]
     print("\n系数对比表：")
     print(coef_compare_df.round(4))
-    coef_compare_df.to_csv(FIG_DIR / "系数对比表.csv", index=False, encoding="utf-8-sig")
+    coef_compare_df.to_csv(
+        FIG_DIR / "系数对比表.csv", index=False, encoding="utf-8-sig"
+    )
     print(f"[OK] 已保存: {FIG_DIR / '系数对比表.csv'}")
 
-    importance_df = pd.DataFrame({
-        "特征名称": feature_names,
-        "Ridge系数": ridge_result["coef"],
-        "重要性(|Ridge系数|)": np.abs(ridge_result["coef"]),
-        "VIF值": vif_df.set_index("特征名称").loc[feature_names, "VIF值"].values,
-    }).sort_values("重要性(|Ridge系数|)", ascending=False)
+    importance_df = pd.DataFrame(
+        {
+            "特征名称": feature_names,
+            "Ridge系数": ridge_result["coef"],
+            "重要性(|Ridge系数|)": np.abs(ridge_result["coef"]),
+            "VIF值": vif_df.set_index("特征名称").loc[feature_names, "VIF值"].values,
+        }
+    ).sort_values("重要性(|Ridge系数|)", ascending=False)
 
     print("\n特征重要性表：")
     print(importance_df.round(4))
-    importance_df.to_csv(FIG_DIR / "特征重要性表.csv", index=False, encoding="utf-8-sig")
+    importance_df.to_csv(
+        FIG_DIR / "特征重要性表.csv", index=False, encoding="utf-8-sig"
+    )
     print(f"[OK] 已保存: {FIG_DIR / '特征重要性表.csv'}")
 
     vif_df.to_csv(FIG_DIR / "VIF表.csv", index=False, encoding="utf-8-sig")
@@ -525,9 +587,15 @@ def main():
     print(f"[OK] 已保存: {clean_path}")
 
     (
-        X_all, y_all,
-        X_train, X_test, y_train, y_test,
-        X_train_scaled_df, X_test_scaled_df, scaler
+        X_all,
+        y_all,
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        X_train_scaled_df,
+        X_test_scaled_df,
+        scaler,
     ) = split_and_scale(df_clean)
 
     plot_corr_heatmap(X_train)
@@ -536,15 +604,21 @@ def main():
     ols_result = run_ols(X_train_scaled_df, X_test_scaled_df, y_train, y_test)
 
     lambdas_trace = np.linspace(0, 100, 200)
-    plot_ridge_trace(X_train_scaled_df, y_train, X_train.columns.tolist(), lambdas_trace)
+    plot_ridge_trace(
+        X_train_scaled_df, y_train, X_train.columns.tolist(), lambdas_trace
+    )
 
     lambdas_cv = np.logspace(-3, 2, 100)
-    best_lambda, cv_df = cross_validate_ridge(X_train_scaled_df, y_train, lambdas_cv, n_splits=5)
+    best_lambda, cv_df = cross_validate_ridge(
+        X_train_scaled_df, y_train, lambdas_cv, n_splits=5
+    )
     cv_df.to_csv(FIG_DIR / "交叉验证结果.csv", index=False, encoding="utf-8-sig")
     print(f"[OK] 已保存: {FIG_DIR / '交叉验证结果.csv'}")
     plot_cv_curve(cv_df, best_lambda)
 
-    ridge_result = run_ridge(X_train_scaled_df, X_test_scaled_df, y_train, y_test, best_lambda)
+    ridge_result = run_ridge(
+        X_train_scaled_df, X_test_scaled_df, y_train, y_test, best_lambda
+    )
 
     save_tables(
         feature_names=X_train.columns.tolist(),
@@ -555,12 +629,29 @@ def main():
         best_lambda=best_lambda,
     )
 
-    plot_true_vs_pred(y_test.values, ridge_result["y_test_pred"], "Ridge", "测试集真实值_vs_预测值散点图.png")
-    plot_residual_distribution(y_test.values, ridge_result["y_test_pred"], "Ridge", "测试集残差分布图.png")
-    plot_coef_bar(X_train.columns.tolist(), ridge_result["coef"], "Ridge 系数条形图", "Ridge系数条形图.png")
+    plot_true_vs_pred(
+        y_test.values,
+        ridge_result["y_test_pred"],
+        "Ridge",
+        "测试集真实值_vs_预测值散点图.png",
+    )
+    plot_residual_distribution(
+        y_test.values, ridge_result["y_test_pred"], "Ridge", "测试集残差分布图.png"
+    )
+    plot_coef_bar(
+        X_train.columns.tolist(),
+        ridge_result["coef"],
+        "Ridge 系数条形图",
+        "Ridge系数条形图.png",
+    )
 
     if ols_result["success"]:
-        plot_coef_bar(X_train.columns.tolist(), ols_result["coef"], "OLS 系数条形图", "OLS系数条形图.png")
+        plot_coef_bar(
+            X_train.columns.tolist(),
+            ols_result["coef"],
+            "OLS 系数条形图",
+            "OLS系数条形图.png",
+        )
     else:
         print("[WARN] OLS 未成功，跳过 OLS 系数条形图生成。")
 

@@ -14,10 +14,10 @@ def generate_user_data(random_state=42, n_samples=400):
     - avg_order_value: 平均客单价
     """
     centers = [
-        [5, 5, 0, 0],       # 新客观望型
-        [15, 25, 2, 50],    # 潜力活跃型
-        [12, 15, 8, 200],   # 高价值下单型
-        [25, 3, 0, 0],      # 流失风险型
+        [5, 5, 0, 0],  # 新客观望型
+        [15, 25, 2, 50],  # 潜力活跃型
+        [12, 15, 8, 200],  # 高价值下单型
+        [25, 3, 0, 0],  # 流失风险型
     ]
 
     X, y_true = make_blobs(
@@ -29,8 +29,7 @@ def generate_user_data(random_state=42, n_samples=400):
     )
 
     df = pd.DataFrame(
-        X,
-        columns=["reg_days", "browse_duration", "order_count", "avg_order_value"]
+        X, columns=["reg_days", "browse_duration", "order_count", "avg_order_value"]
     )
     df["true_label"] = y_true
 
@@ -49,9 +48,7 @@ def remove_outliers(df, features, q=0.99):
     for feature in features:
         upper = df_clean[feature].quantile(q)
         lower = df_clean[feature].quantile(1 - q)
-        df_clean = df_clean[
-            (df_clean[feature] >= lower) & (df_clean[feature] <= upper)
-        ]
+        df_clean = df_clean[(df_clean[feature] >= lower) & (df_clean[feature] <= upper)]
     return df_clean.reset_index(drop=True)
 
 

@@ -64,9 +64,25 @@ def plot_cluster_result(X, labels, core_indices, title, filename):
 
     plt.figure(figsize=(8, 6))
 
-    plt.scatter(X[core_mask, 0], X[core_mask, 1], c=labels[core_mask], s=60, marker="o", label="core")
-    plt.scatter(X[border_mask, 0], X[border_mask, 1], c=labels[border_mask], s=25, marker="s", label="border")
-    plt.scatter(X[noise_mask, 0], X[noise_mask, 1], c="black", s=20, marker="x", label="noise")
+    plt.scatter(
+        X[core_mask, 0],
+        X[core_mask, 1],
+        c=labels[core_mask],
+        s=60,
+        marker="o",
+        label="core",
+    )
+    plt.scatter(
+        X[border_mask, 0],
+        X[border_mask, 1],
+        c=labels[border_mask],
+        s=25,
+        marker="s",
+        label="border",
+    )
+    plt.scatter(
+        X[noise_mask, 0], X[noise_mask, 1], c="black", s=20, marker="x", label="noise"
+    )
 
     plt.title(title)
     plt.legend()
@@ -89,9 +105,11 @@ def run_native_dbscan(datasets):
         labels = model.fit_predict(X)
 
         plot_cluster_result(
-            X, labels, model.core_sample_indices_,
+            X,
+            labels,
+            model.core_sample_indices_,
             title=f"Native DBSCAN: {name}",
-            filename=f"dbscan_{name}.png"
+            filename=f"dbscan_{name}.png",
         )
 
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
@@ -110,7 +128,12 @@ def compare_with_kmeans(datasets):
 
         plt.figure(figsize=(8, 6))
         plt.scatter(X[:, 0], X[:, 1], c=labels, s=20)
-        plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=200, marker="*")
+        plt.scatter(
+            kmeans.cluster_centers_[:, 0],
+            kmeans.cluster_centers_[:, 1],
+            s=200,
+            marker="*",
+        )
         plt.title(f"KMeans: {name}")
         plt.grid(alpha=0.3)
         plt.tight_layout()
@@ -154,7 +177,7 @@ def main():
             X,
             min_samples=5,
             title=f"k-distance: {name}",
-            filename=f"k_distance_{name}.png"
+            filename=f"k_distance_{name}.png",
         )
 
     # 3. 原生 DBSCAN

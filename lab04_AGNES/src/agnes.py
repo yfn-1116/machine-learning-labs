@@ -17,6 +17,7 @@ class SimpleAGNES:
     """
     简化版 AGNES，仅用于原理验证
     """
+
     def __init__(self, n_clusters=4):
         self.n_clusters = n_clusters
         self.labels_ = None
@@ -61,7 +62,9 @@ def compare_linkage_methods(X_scaled, linkage_methods=None, n_clusters=4):
 
     results = {}
     for method in linkage_methods:
-        model, labels = run_agnes(X_scaled, n_clusters=n_clusters, linkage_method=method)
+        model, labels = run_agnes(
+            X_scaled, n_clusters=n_clusters, linkage_method=method
+        )
         results[method] = {
             "model": model,
             "labels": labels,
@@ -138,12 +141,14 @@ def evaluate_internal_metrics(X_scaled, linkage_methods, n_clusters=4):
     for method in linkage_methods:
         _, labels = run_agnes(X_scaled, n_clusters=n_clusters, linkage_method=method)
 
-        rows.append({
-            "Linkage": method,
-            "轮廓系数": silhouette_score(X_scaled, labels),
-            "CH指数": calinski_harabasz_score(X_scaled, labels),
-            "Dunn指数": dunn_index(X_scaled, labels),
-        })
+        rows.append(
+            {
+                "Linkage": method,
+                "轮廓系数": silhouette_score(X_scaled, labels),
+                "CH指数": calinski_harabasz_score(X_scaled, labels),
+                "Dunn指数": dunn_index(X_scaled, labels),
+            }
+        )
 
     return pd.DataFrame(rows)
 
@@ -154,13 +159,15 @@ def evaluate_external_metrics(X_scaled, y_true, linkage_methods, n_clusters=4):
     for method in linkage_methods:
         _, labels = run_agnes(X_scaled, n_clusters=n_clusters, linkage_method=method)
 
-        rows.append({
-            "Linkage": method,
-            "ARI": adjusted_rand_score(y_true, labels),
-            "同质性": homogeneity_score(y_true, labels),
-            "完整性": completeness_score(y_true, labels),
-            "V-measure": v_measure_score(y_true, labels),
-        })
+        rows.append(
+            {
+                "Linkage": method,
+                "ARI": adjusted_rand_score(y_true, labels),
+                "同质性": homogeneity_score(y_true, labels),
+                "完整性": completeness_score(y_true, labels),
+                "V-measure": v_measure_score(y_true, labels),
+            }
+        )
 
     return pd.DataFrame(rows)
 

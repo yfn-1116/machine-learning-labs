@@ -23,7 +23,9 @@ def _to_numpy_2d(X) -> np.ndarray:
     return arr
 
 
-def ols_fit(X, y, add_intercept: bool = False, singular_tol: float = 1e12) -> Tuple[np.ndarray, float]:
+def ols_fit(
+    X, y, add_intercept: bool = False, singular_tol: float = 1e12
+) -> Tuple[np.ndarray, float]:
     """
     原生 OLS 闭式解。
     返回:
@@ -61,7 +63,9 @@ def ols_fit(X, y, add_intercept: bool = False, singular_tol: float = 1e12) -> Tu
     return coef_, intercept_
 
 
-def ridge_fit(X, y, lam: float, add_intercept: bool = False) -> Tuple[np.ndarray, float]:
+def ridge_fit(
+    X, y, lam: float, add_intercept: bool = False
+) -> Tuple[np.ndarray, float]:
     """
     原生 Ridge 闭式解。
     """
@@ -135,7 +139,9 @@ def regression_metrics(y_true, y_pred) -> Dict[str, float]:
     }
 
 
-def ridge_trace(X, y, lambdas: Iterable[float], add_intercept: bool = False) -> np.ndarray:
+def ridge_trace(
+    X, y, lambdas: Iterable[float], add_intercept: bool = False
+) -> np.ndarray:
     """
     计算岭迹图系数轨迹。
     返回 shape = (len(lambdas), n_features)

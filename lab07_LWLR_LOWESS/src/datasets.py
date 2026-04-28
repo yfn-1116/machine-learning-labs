@@ -29,7 +29,7 @@ def generate_abtest_data(random_seed: int = 42) -> pd.DataFrame:
     control = control_base + control_weekend_effect
 
     # 异常点：第10天骤降，第18天误报升高
-    control[9] = 0.0070   # day=10
+    control[9] = 0.0070  # day=10
     control[17] = 0.0160  # day=18
 
     # -----------------------------

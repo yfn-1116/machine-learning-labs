@@ -10,7 +10,7 @@ def gaussian_kernel(x: np.ndarray, x0: np.ndarray, tau: float) -> np.ndarray:
     x0: (n_features,)
     """
     diff = x - x0
-    return np.exp(-np.sum(diff ** 2, axis=1) / (2 * tau ** 2))
+    return np.exp(-np.sum(diff**2, axis=1) / (2 * tau**2))
 
 
 def ols_fit_predict(x: np.ndarray, y: np.ndarray, x_query: np.ndarray) -> np.ndarray:
@@ -27,7 +27,9 @@ def ols_fit_predict(x: np.ndarray, y: np.ndarray, x_query: np.ndarray) -> np.nda
     return Xq @ theta
 
 
-def lwlr_predict(x: np.ndarray, y: np.ndarray, x0: np.ndarray, tau: float = 0.15) -> float:
+def lwlr_predict(
+    x: np.ndarray, y: np.ndarray, x0: np.ndarray, tau: float = 0.15
+) -> float:
     """
     单点 LWLR 预测
     """

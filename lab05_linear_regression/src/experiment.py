@@ -46,14 +46,25 @@ def plot_fit_process(X_train, Y_train, theta_history, mu, sigma, alpha):
     for i, (theta, color) in enumerate(zip(theta_history, colors)):
         y_line = x_line_b @ theta
         if i == 0:
-            plt.plot(x_line, y_line, color=color, linestyle="--", linewidth=1.5, label="初始状态")
+            plt.plot(
+                x_line,
+                y_line,
+                color=color,
+                linestyle="--",
+                linewidth=1.5,
+                label="初始状态",
+            )
         elif i == len(theta_history) - 1:
-            plt.plot(x_line, y_line, color="darkorange", linewidth=3, label="最终拟合直线")
+            plt.plot(
+                x_line, y_line, color="darkorange", linewidth=3, label="最终拟合直线"
+            )
         else:
             plt.plot(x_line, y_line, color=color, linestyle=":", linewidth=1.2)
 
     y_true_line = 10 + 5 * x_line
-    plt.plot(x_line, y_true_line, color="red", linestyle="--", linewidth=2, label="真实直线")
+    plt.plot(
+        x_line, y_true_line, color="red", linestyle="--", linewidth=2, label="真实直线"
+    )
 
     plt.xlabel("每周学习时长（小时）")
     plt.ylabel("考试成绩（分）")
@@ -99,7 +110,9 @@ def plot_learning_rate_compare(X_train_scaled, Y_train):
     plt.ylim(0, 100)
     plt.legend()
     plt.grid(alpha=0.3)
-    plt.savefig(os.path.join(FIG_DIR, "learning_rate_compare.png"), dpi=300, bbox_inches="tight")
+    plt.savefig(
+        os.path.join(FIG_DIR, "learning_rate_compare.png"), dpi=300, bbox_inches="tight"
+    )
     plt.show()
 
 
@@ -110,9 +123,18 @@ def plot_final_fit(X_train, Y_train, X_test, Y_test, theta_bgd, mu, sigma):
 
     plt.figure(figsize=(12, 7))
     plt.scatter(X_train, Y_train, edgecolor="k", alpha=0.6, s=60, label="训练集样本")
-    plt.scatter(X_test, Y_test, edgecolor="k", alpha=0.9, s=70, marker="s", label="测试集样本")
+    plt.scatter(
+        X_test, Y_test, edgecolor="k", alpha=0.9, s=70, marker="s", label="测试集样本"
+    )
     plt.plot(x_line, y_line, color="darkorange", linewidth=3, label="最终拟合直线")
-    plt.plot(x_line, 10 + 5 * x_line, color="red", linestyle="--", linewidth=2, label="真实直线")
+    plt.plot(
+        x_line,
+        10 + 5 * x_line,
+        color="red",
+        linestyle="--",
+        linewidth=2,
+        label="真实直线",
+    )
 
     plt.xlabel("每周学习时长（小时）")
     plt.ylabel("考试成绩（分）")
@@ -164,10 +186,7 @@ def main():
     # 4. 梯度下降训练
     alpha = 0.1
     theta_bgd, loss_history, theta_history = gradient_descent_visual(
-        X_train_scaled,
-        Y_train,
-        alpha=alpha,
-        record_interval=50
+        X_train_scaled, Y_train, alpha=alpha, record_interval=50
     )
 
     print("=" * 50)
@@ -184,7 +203,9 @@ def main():
     print("=" * 50)
     print(f"{'方法':<15} | {'theta0':<12} | {'theta1':<12}")
     print("-" * 45)
-    print(f"{'正规方程法':<15} | {theta_normal[0,0]:<12.4f} | {theta_normal[1,0]:<12.4f}")
+    print(
+        f"{'正规方程法':<15} | {theta_normal[0,0]:<12.4f} | {theta_normal[1,0]:<12.4f}"
+    )
     print(f"{'梯度下降法':<15} | {theta_bgd[0,0]:<12.4f} | {theta_bgd[1,0]:<12.4f}")
 
     # 6. 测试集预测与评估
